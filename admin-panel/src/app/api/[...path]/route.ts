@@ -2,16 +2,38 @@
  * API Proxy Route
  *
  * Proxies all /api/* requests to the backend at batterydoctor.elvee.app/api/*
- * This avoids CORS issues and ensures all headers (env, x-device) are forwarded.
+ * This avoids CORS issues and ensures required headers are sent.
  *
- * Why not use next.config.ts rewrites?
- * - Rewrites don't forward custom headers reliably
- * - This gives full control over request/response transformation
+ * Only forwards essential headers — strips browser-specific headers
+ * (origin, referer, sec-fetch-*) that may cause backend to reject requests.
  */
 
 import { NextRequest, NextResponse } from "next/server";
 
 const BACKEND_URL = "https://batterydoctor.elvee.app/api";
+
+// Headers that should NOT be forwarded to the backend
+const SKIP_HEADERS = new Set([
+  "host",
+  "connection",
+  "content-length",
+  "origin",
+  "referer",
+  "sec-fetch-dest",
+  "sec-fetch-mode",
+  "sec-fetch-site",
+  "sec-ch-ua",
+  "sec-ch-ua-mobile",
+  "sec-ch-ua-platform",
+  "user-agent",
+  "accept-encoding",
+  "accept-language",
+  "cookie",
+  "x-forwarded-for",
+  "x-forwarded-host",
+  "x-forwarded-port",
+  "x-forwarded-proto",
+]);
 
 async function proxyRequest(request: NextRequest) {
   // Build the backend URL from the path
@@ -19,21 +41,28 @@ async function proxyRequest(request: NextRequest) {
   const path = url.pathname.replace(/^\/api/, ""); // Remove /api prefix
   const backendUrl = `${BACKEND_URL}${path}${url.search}`;
 
-  // Forward all headers from the original request
+  // Build clean headers - only forward what's needed
   const headers = new Headers();
-  request.headers.forEach((value, key) => {
-    // Skip host and other headers that shouldn't be forwarded
-    if (!["host", "connection", "content-length"].includes(key.toLowerCase())) {
-      headers.set(key, value);
-    }
-  });
 
-  // Ensure required headers are always present
-  if (!headers.has("env")) {
-    headers.set("env", "test");
+  // Always set required headers
+  headers.set("env", "test");
+  headers.set("x-device", "web");
+  headers.set("Content-Type", "application/json");
+
+  // Forward Authorization header if present
+  const authHeader = request.headers.get("authorization");
+  if (authHeader) {
+    headers.set("Authorization", authHeader);
   }
-  if (!headers.has("x-device")) {
-    headers.set("x-device", "web");
+
+  // Forward any custom env/x-device if client sends them
+  const clientEnv = request.headers.get("env");
+  if (clientEnv) {
+    headers.set("env", clientEnv);
+  }
+  const clientDevice = request.headers.get("x-device");
+  if (clientDevice) {
+    headers.set("x-device", clientDevice);
   }
 
   // Build fetch options
@@ -46,7 +75,8 @@ async function proxyRequest(request: NextRequest) {
   if (["POST", "PUT", "PATCH"].includes(request.method)) {
     const contentType = request.headers.get("content-type") || "";
     if (contentType.includes("multipart/form-data")) {
-      // For file uploads, forward the raw body
+      // For file uploads, forward raw body and set correct content-type
+      headers.set("Content-Type", contentType);
       fetchOptions.body = await request.arrayBuffer();
     } else {
       // For JSON, forward as text
@@ -60,14 +90,9 @@ async function proxyRequest(request: NextRequest) {
     // Get response body
     const responseBody = await response.arrayBuffer();
 
-    // Forward response with all headers
+    // Build response headers
     const responseHeaders = new Headers();
-    response.headers.forEach((value, key) => {
-      // Skip headers that Next.js handles
-      if (!["transfer-encoding", "connection"].includes(key.toLowerCase())) {
-        responseHeaders.set(key, value);
-      }
-    });
+    responseHeaders.set("Content-Type", response.headers.get("content-type") || "application/json");
 
     return new NextResponse(responseBody, {
       status: response.status,
