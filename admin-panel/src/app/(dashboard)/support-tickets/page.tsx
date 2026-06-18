@@ -43,6 +43,7 @@ import {
 
 import { useTickets, useUpdateTicketStatus, ticketKeys } from "@/hooks/use-support-tickets";
 import { TicketStatus } from "@/types";
+import { Pagination } from "@/components/shared/pagination";
 
 // Status configuration for badges
 const statusConfig: Record<
@@ -93,10 +94,13 @@ function formatRelativeTime(dateStr: string): string {
 
 export default function SupportTicketsPage() {
   const [statusFilter, setStatusFilter] = useState<TicketStatus | "">("");
+  const [currentPage, setCurrentPage] = useState(1);
   const queryClient = useQueryClient();
 
   const { data, isLoading, isError, error } = useTickets({
     status: statusFilter || undefined,
+    page: currentPage,
+    limit: 10,
   });
 
   const updateStatus = useUpdateTicketStatus();
@@ -352,13 +356,15 @@ export default function SupportTicketsPage() {
             </div>
           )}
 
-          {/* Pagination Info */}
+          {/* Pagination */}
           {data && data.totalPages > 1 && (
-            <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-700">
-              <p className="text-sm text-slate-500">
-                Page {data.page} of {data.totalPages} ({data.total} total)
-              </p>
-            </div>
+            <Pagination
+              currentPage={data.page}
+              totalPages={data.totalPages}
+              total={data.total}
+              limit={data.limit}
+              onPageChange={(page) => setCurrentPage(page)}
+            />
           )}
         </CardContent>
       </Card>

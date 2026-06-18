@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/use-auth";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 
 interface HeaderProps {
   onMenuToggle?: () => void;
@@ -39,24 +40,25 @@ export function Header({ onMenuToggle }: HeaderProps) {
     : "AD";
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-700 bg-slate-900/95 backdrop-blur px-4 md:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-card/95 backdrop-blur px-4 md:px-6">
       {/* Left side - Mobile menu button */}
       <div className="flex items-center gap-4">
         <Button
           variant="ghost"
           size="icon"
-          className="md:hidden text-slate-400 hover:text-white"
+          className="md:hidden text-muted-foreground hover:text-foreground"
           onClick={onMenuToggle}
         >
           <Menu className="h-5 w-5" />
         </Button>
-        <h2 className="text-lg font-semibold text-white hidden md:block">
+        <h2 className="text-lg font-semibold text-foreground hidden md:block">
           Admin Dashboard
         </h2>
       </div>
 
-      {/* Right side - User menu */}
-      <div className="flex items-center gap-4">
+      {/* Right side - Theme toggle + User menu */}
+      <div className="flex items-center gap-3">
+        <ThemeToggle />
         <DropdownMenu>
           <DropdownMenuTrigger
             className="relative flex items-center gap-2 text-slate-300 hover:text-white rounded-md px-3 py-2 hover:bg-slate-800 transition-colors cursor-pointer"
