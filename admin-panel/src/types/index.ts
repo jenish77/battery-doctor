@@ -24,8 +24,8 @@ export interface ApiErrorResponse {
 export interface LoginRequest {
   email: string;
   password: string;
-  pushToken: string;
-  deviceInfo: {
+  pushToken?: string;
+  deviceInfo?: {
     device: string;
   };
 }

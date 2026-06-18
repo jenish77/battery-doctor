@@ -22,7 +22,7 @@ export const ADMIN_USER_KEY = "bd_admin_user";
 
 // API Base URL from environment
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "https://batterydoctor.elvee.app";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "https://batterydoctor.elvee.app/api";
 
 // Create Axios instance
 const apiClient: AxiosInstance = axios.create({
