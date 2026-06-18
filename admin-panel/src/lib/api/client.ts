@@ -29,8 +29,8 @@ const API_BASE_URL =
   typeof window !== "undefined"
     ? USE_PROXY
       ? "/api" // Client-side with proxy: go through Next.js API route
-      : (process.env.NEXT_PUBLIC_API_BASE_URL || "https://batterydoctor.elvee.app/api") // Client-side direct
-    : (process.env.NEXT_PUBLIC_API_BASE_URL || "https://batterydoctor.elvee.app/api"); // Server-side: always direct
+      : process.env.NEXT_PUBLIC_API_BASE_URL! // Client-side direct
+    : process.env.NEXT_PUBLIC_API_BASE_URL!; // Server-side: always direct
 
 // Create Axios instance
 const apiClient: AxiosInstance = axios.create({
@@ -133,7 +133,7 @@ apiClient.interceptors.response.use(
         const refreshUrl =
           typeof window !== "undefined"
             ? "/api/admin/auth/v1/refresh_token"
-            : `${process.env.NEXT_PUBLIC_API_BASE_URL || "https://batterydoctor.elvee.app/api"}/admin/auth/v1/refresh_token`;
+            : `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/auth/v1/refresh_token`;
 
         const response = await axios.post(
           refreshUrl,

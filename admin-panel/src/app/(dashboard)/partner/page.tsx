@@ -14,7 +14,7 @@ import { partnerService } from "@/lib/api/partner.service";
 
 export default function PartnerPage() {
   const [region, setRegion] = useState("eu");
-  const [domain, setDomain] = useState("batterydoctor.elvee.app");
+  const [domain, setDomain] = useState("");
   const queryClient = useQueryClient();
 
   const publicKeyQuery = useQuery({

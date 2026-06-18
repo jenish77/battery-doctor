@@ -1,7 +1,7 @@
 /**
  * API Proxy Route
  *
- * Proxies all /api/* requests to the backend at batterydoctor.elvee.app/api/*
+ * Proxies all /api/* requests to the backend (configured via NEXT_PUBLIC_API_BASE_URL).
  * This avoids CORS issues and ensures required headers are sent.
  *
  * Only forwards essential headers — strips browser-specific headers
@@ -10,7 +10,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://batterydoctor.elvee.app/api";
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
 
 // Headers that should NOT be forwarded to the backend
 const SKIP_HEADERS = new Set([
