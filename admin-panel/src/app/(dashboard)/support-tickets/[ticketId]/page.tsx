@@ -162,6 +162,7 @@ export default function TicketConversationPage() {
   const [internalNote, setInternalNote] = useState("");
   const [showNoteField, setShowNoteField] = useState(false);
   const [ticketStatus, setTicketStatus] = useState<TicketStatus>("open");
+  const [ticketInfo, setTicketInfo] = useState<{ title: string; issueDetail: string } | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -173,6 +174,21 @@ export default function TicketConversationPage() {
 
   const sendMessage = useSendMessage(ticketId);
   const updateStatus = useUpdateTicketStatus();
+
+  // Fetch ticket detail to get title and description
+  useEffect(() => {
+    async function fetchTicketDetail() {
+      try {
+        const { supportTicketsService } = await import("@/lib/api/support-tickets.service");
+        const detail = await supportTicketsService.updateTicketStatus(ticketId, { status: "open" });
+        setTicketInfo({ title: detail.title, issueDetail: detail.issueDetail || "" });
+        setTicketStatus(detail.status as TicketStatus);
+      } catch {
+        // Silently fail - ticket info is optional
+      }
+    }
+    fetchTicketDetail();
+  }, [ticketId]);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -266,9 +282,20 @@ export default function TicketConversationPage() {
       {/* Conversation Area */}
       <Card className="flex-1 flex flex-col bg-slate-800/50 border-slate-700 overflow-hidden">
         <CardHeader className="pb-2 border-b border-slate-700">
-          <CardTitle className="text-sm text-slate-400 font-normal">
+          {/* Ticket Title & Description */}
+          {ticketInfo && (
+            <div className="mb-2">
+              <CardTitle className="text-white text-base">
+                {ticketInfo.title}
+              </CardTitle>
+              {ticketInfo.issueDetail && (
+                <p className="text-sm text-slate-400 mt-1">{ticketInfo.issueDetail}</p>
+              )}
+            </div>
+          )}
+          <p className="text-sm text-slate-500 font-normal">
             {data ? `${data.total} message${data.total !== 1 ? "s" : ""}` : "Messages"}
-          </CardTitle>
+          </p>
         </CardHeader>
 
         <CardContent className="flex-1 overflow-hidden p-0">
@@ -300,7 +327,7 @@ export default function TicketConversationPage() {
                     <p>No messages yet. Start the conversation below.</p>
                   </div>
                 )}
-                {data?.items.map((msg) => (
+                {[...(data?.items || [])].reverse().map((msg) => (
                   <MessageBubble key={msg._id} msg={msg} />
                 ))}
                 <div ref={messagesEndRef} />

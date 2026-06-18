@@ -279,7 +279,7 @@ export default function SupportTicketsPage() {
                               )
                             }
                           >
-                            <SelectTrigger className="w-[130px] h-7 border-0 bg-transparent p-0 focus:ring-0">
+                            <SelectTrigger className="w-auto h-7 border-0 bg-transparent p-0 focus:ring-0 gap-1">
                               <Badge
                                 variant={config.variant}
                                 className={config.className}
