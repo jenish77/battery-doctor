@@ -6,6 +6,7 @@
  */
 
 export { authService } from "./auth.service";
+export { supportTicketsService } from "./support-tickets.service";
 export { default as apiClient } from "./client";
 export {
   setAuthTokens,

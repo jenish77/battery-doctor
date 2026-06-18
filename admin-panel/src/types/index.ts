@@ -160,32 +160,66 @@ export interface UpdateSubscriptionPlanRequest {
 // Support Ticket Types
 // ============================================================
 
+export type TicketStatus = "open" | "inProgress" | "resolved" | "closed";
+
 export interface SupportTicket {
   _id: string;
   userId: string;
-  subject: string;
-  description: string;
-  status: "open" | "in_progress" | "resolved" | "closed";
-  priority: "low" | "medium" | "high";
+  title: string;
+  status: TicketStatus;
+  lastMessageAt: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface SupportTicketDetail extends SupportTicket {
+  issueDetail: string;
+  attachments: TicketAttachment[];
+}
+
+export interface TicketAttachment {
+  key: string;
+  fileName: string;
+  type: string;
+  url: string;
 }
 
 export interface TicketConversation {
   _id: string;
   ticketId: string;
+  senderType: "admin" | "user";
+  adminId?: string;
   message: string;
-  sender: "admin" | "user";
+  internalNote: string;
+  attachments: TicketAttachment[];
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface UpdateTicketRequest {
-  status?: "open" | "in_progress" | "resolved" | "closed";
-  priority?: "low" | "medium" | "high";
+  status: TicketStatus;
 }
 
 export interface CreateConversationRequest {
   message: string;
+  internalNote: string;
+  attachments: { key: string; fileName: string }[];
+}
+
+export interface TicketListResponse {
+  items: SupportTicket[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface ConversationListResponse {
+  items: TicketConversation[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
 }
 
 // ============================================================
