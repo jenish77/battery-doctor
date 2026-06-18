@@ -69,23 +69,29 @@ export interface AssignSubscriptionRequest {
 
 export interface FAQ {
   _id: string;
-  question: string;
-  answer: string;
-  isActive: boolean;
+  question: { en: string };
+  answer: { en: string };
+  category: string;
+  order: number;
+  status: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreateFAQRequest {
-  question: string;
-  answer: string;
-  isActive?: boolean;
+  category: string;
+  order: number;
+  status: boolean;
+  question: { en: string };
+  answer: { en: string };
 }
 
 export interface UpdateFAQRequest {
-  question?: string;
-  answer?: string;
-  isActive?: boolean;
+  question?: { en: string };
+  answer?: { en: string };
+  category?: string;
+  order?: number;
+  status?: boolean;
 }
 
 // ============================================================
@@ -94,32 +100,46 @@ export interface UpdateFAQRequest {
 
 export interface VehicleProfile {
   _id: string;
-  name: string;
-  make: string;
-  model: string;
-  year: number;
-  batteryCapacity: number;
-  isActive: boolean;
+  optionCodes: string[];
+  startYear: number;
+  endYear: number;
+  trimBadge: string[];
+  modelType: string;
+  marketingName: string;
+  sources: string[];
+  range: {
+    coldWeather: { cityKm: number; highwayKm: number; combinedKm: number };
+    mildWeather: { cityKm: number; highwayKm: number; combinedKm: number };
+  };
+  battery: Record<string, unknown>;
+  charging: Record<string, unknown>;
+  performance: Record<string, unknown>;
+  energyConsumption: Record<string, unknown>;
+  homeChargingOptions: Record<string, unknown>;
+  fastCharging10To80: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreateVehicleProfileRequest {
-  name: string;
-  make: string;
-  model: string;
-  year: number;
-  batteryCapacity: number;
-  isActive?: boolean;
+  optionCodes: string[];
+  startYear: number;
+  endYear: number;
+  trimBadge: string[];
+  modelType: string;
+  marketingName: string;
+  sources: string[];
+  range: Record<string, unknown>;
+  battery: Record<string, unknown>;
+  charging: Record<string, unknown>;
+  performance: Record<string, unknown>;
+  energyConsumption: Record<string, unknown>;
+  homeChargingOptions: Record<string, unknown>;
+  fastCharging10To80: Record<string, unknown>;
 }
 
 export interface UpdateVehicleProfileRequest {
-  name?: string;
-  make?: string;
-  model?: string;
-  year?: number;
-  batteryCapacity?: number;
-  isActive?: boolean;
+  [key: string]: unknown;
 }
 
 // ============================================================
@@ -128,32 +148,38 @@ export interface UpdateVehicleProfileRequest {
 
 export interface SubscriptionPlan {
   _id: string;
-  name: string;
-  description: string;
+  vehicleLicence: number;
+  planType: string;
+  duration: string;
   price: number;
-  duration: number;
-  features: string[];
-  isActive: boolean;
+  trialDays: number;
+  androidSkuCode: string;
+  iosSkuCode: string;
+  status: string;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreateSubscriptionPlanRequest {
-  name: string;
-  description: string;
+  vehicleLicence: number;
+  planType: string;
+  duration: string;
   price: number;
-  duration: number;
-  features: string[];
-  isActive?: boolean;
+  trialDays: number;
+  androidSkuCode: string;
+  iosSkuCode: string;
+  status: string;
 }
 
 export interface UpdateSubscriptionPlanRequest {
-  name?: string;
-  description?: string;
+  vehicleLicence?: number;
+  planType?: string;
+  duration?: string;
   price?: number;
-  duration?: number;
-  features?: string[];
-  isActive?: boolean;
+  trialDays?: number;
+  androidSkuCode?: string;
+  iosSkuCode?: string;
+  status?: string;
 }
 
 // ============================================================
@@ -254,6 +280,8 @@ export interface AppContent {
   prioritydo: { en: string };
   rangeCalculator: { en: string };
   chargingInfo: { en: string };
+  vehicleInformation?: { en: string };
+  [key: string]: { en: string } | string | undefined;
 }
 
 export interface UpdateAppContentRequest {
@@ -264,8 +292,27 @@ export interface UpdateAppContentRequest {
 // App Settings Types
 // ============================================================
 
+export interface AllowedFileType {
+  extension: string;
+  maxSizeMB: number;
+}
+
 export interface AppSettings {
   _id: string;
+  supportEmail: string;
+  playStoreLink: string;
+  appStoreLink: string;
+  termsUrl: string;
+  privacyUrl: string;
+  allowedFileType: AllowedFileType[];
+  instagram: string;
+  linkedIn: string;
+  facebook: string;
+  twitter: string;
+  reddit: string;
+  ios: Record<string, unknown>;
+  android: Record<string, unknown>;
+  underMaintenance: boolean;
   [key: string]: unknown;
 }
 
@@ -278,16 +325,14 @@ export interface UpdateAppSettingsRequest {
 // ============================================================
 
 export interface PartnerRegisterRequest {
-  name: string;
-  email: string;
-  company: string;
+  region: string;
+  domain: string;
 }
 
 export interface FleetTelemetryError {
-  _id: string;
   vin: string;
   error: string;
-  createdAt: string;
+  created_at: string;
 }
 
 // ============================================================
