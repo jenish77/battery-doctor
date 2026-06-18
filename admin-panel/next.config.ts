@@ -1,12 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Proxy API requests to avoid CORS issues in development
+  // Proxy all /api/* requests to the backend to avoid CORS issues
   async rewrites() {
     return [
       {
-        source: "/api/proxy/:path*",
-        destination: `${process.env.NEXT_PUBLIC_API_BASE_URL}/:path*`,
+        source: "/api/:path*",
+        destination: "https://batterydoctor.elvee.app/api/:path*",
       },
     ];
   },

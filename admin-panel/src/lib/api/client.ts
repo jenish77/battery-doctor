@@ -20,9 +20,12 @@ export const ACCESS_TOKEN_KEY = "bd_access_token";
 export const REFRESH_TOKEN_KEY = "bd_refresh_token";
 export const ADMIN_USER_KEY = "bd_admin_user";
 
-// API Base URL from environment
+// API Base URL - Use relative path to go through Next.js proxy (avoids CORS)
+// In production, you can set this to your actual API URL if CORS is configured
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "https://batterydoctor.elvee.app/api";
+  typeof window !== "undefined"
+    ? "/api" // Client-side: use Next.js proxy to avoid CORS
+    : (process.env.NEXT_PUBLIC_API_BASE_URL || "https://batterydoctor.elvee.app/api"); // Server-side: direct call
 
 // Create Axios instance
 const apiClient: AxiosInstance = axios.create({
@@ -121,9 +124,14 @@ apiClient.interceptors.response.use(
           throw new Error("No refresh token available");
         }
 
-        // Call refresh token endpoint
+        // Call refresh token endpoint (use proxy path for client-side)
+        const refreshUrl =
+          typeof window !== "undefined"
+            ? "/api/admin/auth/v1/refresh_token"
+            : `${process.env.NEXT_PUBLIC_API_BASE_URL || "https://batterydoctor.elvee.app/api"}/admin/auth/v1/refresh_token`;
+
         const response = await axios.post(
-          `${API_BASE_URL}/admin/auth/v1/refresh_token`,
+          refreshUrl,
           {},
           {
             headers: {
