@@ -20,12 +20,17 @@ export const ACCESS_TOKEN_KEY = "bd_access_token";
 export const REFRESH_TOKEN_KEY = "bd_refresh_token";
 export const ADMIN_USER_KEY = "bd_admin_user";
 
-// API Base URL - Use relative path to go through Next.js proxy (avoids CORS)
-// In production, you can set this to your actual API URL if CORS is configured
+// API Base URL Configuration
+// - When NEXT_PUBLIC_USE_PROXY=true: client uses /api (Next.js proxy handles CORS)
+// - When NEXT_PUBLIC_USE_PROXY=false: client calls backend directly (requires CORS on backend)
+const USE_PROXY = process.env.NEXT_PUBLIC_USE_PROXY !== "false";
+
 const API_BASE_URL =
   typeof window !== "undefined"
-    ? "/api" // Client-side: use Next.js proxy to avoid CORS
-    : (process.env.NEXT_PUBLIC_API_BASE_URL || "https://batterydoctor.elvee.app/api"); // Server-side: direct call
+    ? USE_PROXY
+      ? "/api" // Client-side with proxy: go through Next.js API route
+      : process.env.NEXT_PUBLIC_API_BASE_URL! // Client-side direct
+    : process.env.NEXT_PUBLIC_API_BASE_URL!; // Server-side: always direct
 
 // Create Axios instance
 const apiClient: AxiosInstance = axios.create({
@@ -128,7 +133,7 @@ apiClient.interceptors.response.use(
         const refreshUrl =
           typeof window !== "undefined"
             ? "/api/admin/auth/v1/refresh_token"
-            : `${process.env.NEXT_PUBLIC_API_BASE_URL || "https://batterydoctor.elvee.app/api"}/admin/auth/v1/refresh_token`;
+            : `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/auth/v1/refresh_token`;
 
         const response = await axios.post(
           refreshUrl,
